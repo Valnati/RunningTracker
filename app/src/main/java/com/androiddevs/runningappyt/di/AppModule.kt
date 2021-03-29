@@ -32,7 +32,7 @@ object AppModule {
         RUNNING_DATABASE_NAME
     ).build()
 
-    //now provide the dao object
+    //now provide the dao object (by implementing class' abstract function
     @Singleton
     @Provides
     fun provideRunDao(db: RunDatabase) = db.getRunDao()
