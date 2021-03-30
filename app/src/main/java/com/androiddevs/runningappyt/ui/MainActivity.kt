@@ -1,5 +1,6 @@
 package com.androiddevs.runningappyt.ui
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -7,8 +8,10 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.androiddevs.runningappyt.R
+import com.androiddevs.runningappyt.other.Constants.ACTION_SHOW_TRACKING_FRAGMENT
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -27,6 +30,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         //normally don't provide injection in the main activity - do it in the repository (MVVM)
         setSupportActionBar(toolbar)
+        //does the intent start a new activity?
+        navigateToTrackingFragmentIfNeeded(intent)
 
         //assign navigation ability to bottomNaveBar
         bottomNavigationView.setupWithNavController(navHostFragment.findNavController())
@@ -39,5 +44,20 @@ class MainActivity : AppCompatActivity() {
                     else -> bottomNavigationView.visibility = View.INVISIBLE
                 }
             }
+    }
+
+    //if the activity isn't new, it skips onCreate, so gotta do it here instead
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        navigateToTrackingFragmentIfNeeded(intent)
+    }
+
+    //if get sent intent with id, go to there
+    private fun navigateToTrackingFragmentIfNeeded(intent: Intent?) {
+        Timber.d("Intent found")
+        if(intent?.action == ACTION_SHOW_TRACKING_FRAGMENT) {
+            navHostFragment.findNavController().navigate(R.id.action_global_tracking_fragment)
+            Timber.d("restored via intent")
+        }
     }
 }
