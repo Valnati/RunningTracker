@@ -79,10 +79,13 @@ class TrackingService : LifecycleService() {
                         isFirstRun = false
                     } else {
                         Timber.d("Resuming service")
+                        //temporary fix to keep this running
+                        startForegroundService()
                     }
                 }
                 ACTION_PAUSE_SERVICE -> {
                     Timber.d("Paused service")
+                    pauseService()
                 }
                 ACTION_STOP_SERVICE -> {
                     Timber.d("Stopped service")
@@ -92,6 +95,10 @@ class TrackingService : LifecycleService() {
         //called whenever intent w/ action is sent to service class
         return super.onStartCommand(intent, flags, startId)
         //need start, pause, stop actions
+    }
+
+    private fun pauseService() {
+        isTracking.postValue(false)
     }
 
     //request location updates if given permissions to do so
