@@ -2,13 +2,15 @@ package com.androiddevs.runningappyt.ui.fragments
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.androiddevs.runningappyt.R
 import com.androiddevs.runningappyt.other.Constants.ACTION_PAUSE_SERVICE
 import com.androiddevs.runningappyt.other.Constants.ACTION_START_OR_RESUME_SERVICE
+import com.androiddevs.runningappyt.other.Constants.ACTION_STOP_SERVICE
 import com.androiddevs.runningappyt.other.Constants.MAP_ZOOM
 import com.androiddevs.runningappyt.other.Constants.POLYLINE_COLOR
 import com.androiddevs.runningappyt.other.Constants.POLYLINE_WIDTH
@@ -19,6 +21,7 @@ import com.androiddevs.runningappyt.ui.viewmodels.MainViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_tracking.*
 import timber.log.Timber
@@ -35,12 +38,25 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
 
     //records how long the current run has been going
     private var curTimeInMillis = 0L
+    
+    private var menu: Menu? = null
+
+    //here solely to initialize the menu
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        //must be manually set to true for a fragment
+        setHasOptionsMenu(true)
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mapView.onCreate(savedInstanceState)
         btnToggleRun.setOnClickListener {
-            //action now in this method
+            //action now in this monethod
             toggleRun()
         }
         //get map off main thread
@@ -76,10 +92,57 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
     //use commands to notify intent of current state, alter notification
     private fun toggleRun() {
         if(isTracking) {
+            //make available the cancel button
+            menu?.getItem(0)?.isVisible = true
             sendCommandToService(ACTION_PAUSE_SERVICE)
         } else {
             sendCommandToService(ACTION_START_OR_RESUME_SERVICE)
         }
+    }
+
+    //prepares options menu to be shown
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.toolbar_tracking_menu, menu)
+        this.menu = menu
+    }
+
+    //allows menu to show after run has started
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        if(curTimeInMillis > 0L) {
+            this.menu?.getItem(0)?.isVisible = true
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.miCancelTracking -> {
+                showCancelTrackingDialog()
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun showCancelTrackingDialog() {
+        val dialog = MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogTheme)
+            .setTitle(getString(R.string.alert_text_title))
+            .setMessage(getString(R.string.alert_text_message))
+            .setIcon(R.drawable.ic_delete)
+            .setPositiveButton("Yes") { _, _ ->
+                stopRun()
+            }
+            .setNegativeButton("No") { dialogInterface, _ ->
+                dialogInterface.cancel()
+            }
+            .create()
+            .show()
+    }
+
+    //upon confirming to stop run through dialog, notify service and navigate to run
+    private fun stopRun() {
+        sendCommandToService(ACTION_STOP_SERVICE)
+        findNavController().navigate(R.id.action_trackingFragment_to_runFragment)
     }
 
     //responsible for changing screen to show stop/start state
@@ -91,6 +154,8 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
             btnFinishRun.visibility = View.VISIBLE
         } else {
             btnToggleRun.text = getString(R.string.text_stop)
+            //make available the cancel button
+            menu?.getItem(0)?.isVisible = true
             btnFinishRun.visibility = View.INVISIBLE
         }
     }
