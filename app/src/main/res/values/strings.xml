@@ -18,4 +18,5 @@
     <string name="alert_text_title">Cancel the Run?</string>
     <string name="alert_text_message">This run and its data will be lost.</string>
     <string name="alert_text_confirm">Yes</string>
+    <string name="snackbar_success">Run saved successfully</string>
 </resources>

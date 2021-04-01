@@ -8,6 +8,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.androiddevs.runningappyt.R
+import com.androiddevs.runningappyt.db.Run
 import com.androiddevs.runningappyt.other.Constants.ACTION_PAUSE_SERVICE
 import com.androiddevs.runningappyt.other.Constants.ACTION_START_OR_RESUME_SERVICE
 import com.androiddevs.runningappyt.other.Constants.ACTION_STOP_SERVICE
@@ -20,11 +21,15 @@ import com.androiddevs.runningappyt.services.TrackingService
 import com.androiddevs.runningappyt.ui.viewmodels.MainViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_tracking.*
 import timber.log.Timber
+import java.lang.Math.round
+import java.util.*
 
 @AndroidEntryPoint
 class TrackingFragment : Fragment(R.layout.fragment_tracking) {
@@ -40,6 +45,8 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
     private var curTimeInMillis = 0L
     
     private var menu: Menu? = null
+
+    private var weight = 80f
 
     //here solely to initialize the menu
     override fun onCreateView(
@@ -59,6 +66,12 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
             //action now in this monethod
             toggleRun()
         }
+
+        btnFinishRun.setOnClickListener {
+            zoomToSeeWholeTrack()
+            endRunAndSaveToDb()
+        }
+
         //get map off main thread
         mapView.getMapAsync {
             map = it
@@ -83,7 +96,8 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
         //observer to update
         TrackingService.timeRunInMillis.observe(viewLifecycleOwner, {
             curTimeInMillis = it
-            val formattedTime = TrackingUtility.getFormattedStopWatchTime(curTimeInMillis, true)
+            val formattedTime = TrackingUtility.getFormattedStopWatchTime(
+                curTimeInMillis, true)
 //            Timber.d("Returned time: $formattedTime")
             tvTimer.text = formattedTime
         })
@@ -169,6 +183,47 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
                     MAP_ZOOM
                 )
             )
+        }
+    }
+
+    private fun zoomToSeeWholeTrack() {
+        val bounds = LatLngBounds.builder()
+        for(polyline in pathPoints) {
+            for(pos in polyline) {
+                bounds.include(pos)
+            }
+        }
+        //not animate camera, we want fast shift for screenshot
+        map?.moveCamera(
+            CameraUpdateFactory.newLatLngBounds(
+                bounds.build(),
+                mapView.width,
+                mapView.height,
+                (mapView.height * 0.05f).toInt()
+            )
+        )
+    }
+
+    private fun endRunAndSaveToDb() {
+        map?.snapshot { bmp ->
+            //receive bitmap from snapshot function and track distance:
+            var distanceInMeters = 0
+            for(polyline in pathPoints) {
+                distanceInMeters += TrackingUtility.calculatePolylineLength(polyline).toInt()
+            }
+            //distance in km per hr, after removing trailing decimals
+            val avgSpeed = round((distanceInMeters / 1000f) / (curTimeInMillis / 1000f / 60 / 60) * 10) / 10f
+            val dateTimestamp = Calendar.getInstance().timeInMillis
+            val caloriesBurned = (distanceInMeters/ 1000f * weight).toInt()
+            val run = Run(bmp, dateTimestamp, avgSpeed, distanceInMeters, curTimeInMillis, caloriesBurned)
+            viewModel.insertRun(run)
+            Snackbar.make(
+                //can't move to nonexistant view, (and snackbar will stay) so root is only safe choice
+                requireActivity().findViewById(R.id.rootView),
+                getString(R.string.snackbar_success),
+                Snackbar.LENGTH_SHORT
+            ).show()
+            stopRun()
         }
     }
 
