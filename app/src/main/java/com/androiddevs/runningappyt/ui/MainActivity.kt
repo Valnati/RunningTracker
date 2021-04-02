@@ -44,6 +44,8 @@ class MainActivity : AppCompatActivity() {
                     else -> bottomNavigationView.visibility = View.INVISIBLE
                 }
             }
+
+
     }
 
     //if the activity isn't new, it skips onCreate, so gotta do it here instead
