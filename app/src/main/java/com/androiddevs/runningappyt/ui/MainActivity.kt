@@ -35,6 +35,8 @@ class MainActivity : AppCompatActivity() {
 
         //assign navigation ability to bottomNaveBar
         bottomNavigationView.setupWithNavController(navHostFragment.findNavController())
+        //if click on something already selected, do nothing
+        bottomNavigationView.setOnNavigationItemReselectedListener { /* NO OP */ }
         //remove menu as needed for the different fragments
         navHostFragment.findNavController()
             .addOnDestinationChangedListener { _, destination, _ ->

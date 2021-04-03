@@ -20,4 +20,21 @@
     <string name="alert_text_message">This run and its data will be lost.</string>
     <string name="alert_text_confirm">Yes</string>
     <string name="snackbar_success">Run saved successfully</string>
+    <string name="tv_run_filter_by">Sort by:</string>
+    <string name="fab_run_new_run">Start a new run</string>
+    <string name="tv_stats_total_distance">Total Distance</string>
+    <string name="tv_stats_distance_default">0km</string>
+    <string name="tv_stats_total_time">Total Time</string>
+    <string name="tv_stats_total_time_default">00:00:00</string>
+    <string name="default_timer">00:00:00:00</string>
+    <string name="tv_stats_total_calories_burned">Total Calories Burned</string>
+    <string name="tv_stats_calories_default">0kcal</string>
+    <string name="tv_stats_average_speed">Average Speed</string>
+    <string name="tv_stats_avg_speed_default">0km/h</string>
+    <string name="tv_stats_total_calories_default">0kcal</string>
+    <string name="tv_marker_date">DATE</string>
+    <string name="tv_marker_duration">DURATION</string>
+    <string name="tv_marker_avgspeed">AVG SPEED</string>
+    <string name="tv_marker_distance">DISTANCE</string>
+    <string name="tv_marker_calories_burned">CALORIES BURNED</string>
 </resources>
