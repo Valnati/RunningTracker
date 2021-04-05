@@ -8,7 +8,7 @@
         <item>Calories Burned</item>
 
     </string-array>
-    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">""</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">"AIzaSyDu8SRfYaKaajpbi5isXCQ1U8Bo6xuIeg0"</string>
     <string name="title_your_runs">Your Runs</string>
     <string name="title_statistics">Statistics</string>
     <string name="title_settings">Settings</string>
@@ -37,4 +37,11 @@
     <string name="tv_marker_avgspeed">AVG SPEED</string>
     <string name="tv_marker_distance">DISTANCE</string>
     <string name="tv_marker_calories_burned">CALORIES BURNED</string>
+
+    <string name="tv_weight_explainer">Weight is only used to estimate calories burned.</string>
+    <string name="tv_continue">Continue</string>
+    <string name="tv_weight_label_kg">kg</string>
+    <string name="tiv_weight_hint">Your Weight</string>
+    <string name="tiv_name_hint">Your Name</string>
+    <string name="tv_welcome">Welcome!\nPlease enter your name and weight.</string>
 </resources>

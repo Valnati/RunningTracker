@@ -238,6 +238,7 @@ class TrackingFragment : Fragment(R.layout.fragment_tracking) {
     //loop through existing points and add them when screen is redrawn
     private fun addAllPolylines() {
         for(polyline in pathPoints) {
+            Timber.d("Adding previous polylines now:")
             val polylineOptions = PolylineOptions()
                 .color(POLYLINE_COLOR)
                 .width(POLYLINE_WIDTH)
