@@ -1,8 +1,10 @@
 package com.androiddevs.runningappyt.adapters
 
+import android.app.Dialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -14,9 +16,11 @@ import kotlinx.android.synthetic.main.item_run.view.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class RunAdapter : RecyclerView.Adapter<RunAdapter.RunViewHolder>() {
+class RunAdapter(
+   // private val listener: AdapterView.OnItemClickListener
+) : RecyclerView.Adapter<RunAdapter.RunViewHolder>() {
     //will auto create list of update operations for turning an old list into a new one
-    val diffCallback = object: DiffUtil.ItemCallback<Run>() {
+    private val diffCallback = object : DiffUtil.ItemCallback<Run>() {
         //not contents but id of the item themselves
         override fun areItemsTheSame(oldItem: Run, newItem: Run): Boolean {
             return oldItem.id == newItem.id
@@ -26,11 +30,27 @@ class RunAdapter : RecyclerView.Adapter<RunAdapter.RunViewHolder>() {
             return oldItem.hashCode() == newItem.hashCode()
         }
     }
-    val differ = AsyncListDiffer(this,diffCallback)
+    val differ = AsyncListDiffer(this, diffCallback)
 
     fun submitList(list: List<Run>) = differ.submitList(list)
 
-    inner class RunViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    inner class RunViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
+        View.OnClickListener {
+        init {
+            itemView.setOnClickListener(this)
+        }
+
+        override fun onClick(v: View?) {
+//            val position = adapterPosition
+//            if (position != RecyclerView.NO_POSITION) {
+//                listener.onItemClick(position)
+//            }
+//        }
+//
+//        interface OnItemClickListener {
+//            fun onItemClick(list: List<Run>)
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RunViewHolder {
         return RunViewHolder(
